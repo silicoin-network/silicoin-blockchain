@@ -120,6 +120,11 @@ class HarvesterAPI:
                         )
                         sp_interval_iters = calculate_sp_interval_iters(self.harvester.constants, sub_slot_iters)
                         if required_iters < sp_interval_iters:
+                            self.harvester.log.error(
+                                    f"Rook Proof Found File: {filename} Plot ID: {plot_id.hex()}, challenge: {sp_challenge_hash}, "
+                                    f"plot_info: {plot_info}"
+                                )
+                            self.harvester.log.error(f"Rook required_iters {required_iters} sp_interval_iters {sp_interval_iters}")
                             # Found a very good proof of space! will fetch the whole proof from disk,
                             # then send to farmer
                             try:
