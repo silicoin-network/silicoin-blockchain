@@ -685,7 +685,7 @@ class Farmer:
         time_slept: uint64 = uint64(0)
         refresh_slept = 0
         while not self._shut_down:
-            self.log.info("[debug] clear cache")
+#            self.log.info("[debug] clear cache")
             try:
                 if time_slept > self.constants.SUB_SLOT_TIME_TARGET:
                     now = time.time()
