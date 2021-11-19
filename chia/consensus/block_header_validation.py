@@ -60,7 +60,7 @@ def validate_unfinished_header_block(
     and lead to other small tweaks in validation.
     """
     # 1. Check that the previous block exists in the blockchain, or that it is correct
-
+    inHeight = height
     prev_b = blocks.try_block_record(header_block.prev_header_hash)
     genesis_block = prev_b is None
     if genesis_block and header_block.prev_header_hash != constants.GENESIS_CHALLENGE:
@@ -509,6 +509,7 @@ def validate_unfinished_header_block(
             peak_height = height - 1
         else:
             peak_height = 0
+    log.info(f"Rook inHeight: {inHeight} height: {height}")
     difficulty_coeff = blocks.get_farmer_difficulty_coeff_sync(
         header_block.reward_chain_block.proof_of_space.farmer_public_key, peak_height
     )
