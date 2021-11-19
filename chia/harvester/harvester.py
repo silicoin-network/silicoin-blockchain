@@ -55,7 +55,6 @@ class Harvester:
         )
         self._is_shutdown = False
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=config["num_threads"])
-        self.log.error(f"Rook Num Harvester Threads: {config['num_threads']}")
         self.state_changed_callback = None
         self.server = None
         self.constants = constants

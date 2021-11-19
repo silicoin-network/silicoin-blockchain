@@ -157,6 +157,7 @@ async def print_balances(args: dict, wallet_client: WalletRpcClient, fingerprint
 
 async def send_from(args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
     wallet_id = args["id"]
+    numCoins = Decimal(args["numCoins"])
     address = decode_puzzle_hash(args["address"])
     source = decode_puzzle_hash(args["source"])
     rpc_port = args["rpc_port"]
@@ -177,8 +178,10 @@ async def send_from(args: dict, wallet_client: WalletRpcClient, fingerprint: int
 
     client.close()
     await client.await_closed()
-
-    coins = [cr.coin for cr in coin_records]
+    coins = []
+    for p in range(numCoins):
+        coins.append(coin_record[p])
+#    coins = [cr.coin for cr in coin_records]
     amount = sum(coin.amount for coin in coins)
     additions = [
         {

@@ -1023,11 +1023,11 @@ class Blockchain(BlockchainInterface):
                 else:
                     coeff = Decimal("0.05") + Decimal(1) / (Decimal(staking) / space + Decimal("0.05"))
 
-        # log.info(
-        #     f"minimal_staking : {minimal_staking}, space : {space} "
-        #     f"Difficulty coefficient: {coeff}, staking: {staking}, total space: {network_space}, "
-        #     f"blocks: {blocks}, peak_height: {peak_height}"
-        # )
+        log.info(
+            f"minimal_staking : {minimal_staking}, space : {space} "
+            f"Difficulty coefficient: {coeff}, staking: {staking}, total space: {network_space}, "
+            f"blocks: {blocks}, peak_height: {peak_height}"
+        )
 
         return coeff
 
