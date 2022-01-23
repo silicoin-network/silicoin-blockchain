@@ -144,7 +144,7 @@ def send_cmd(
 )
 @click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
 @click.option("-i", "--id", help="Id of the wallet to use", type=int, default=1, show_default=True, required=True)
-@click.option("-n", "--numCoins", help="Number of coins to send, in coins not SIT", type=int, required=True)
+@click.option("-n", "--numcoins", help="Number of coins to send, in coins not SIT", type=int, required=True)
 @click.option("-s", "--source", help="Address to send the SIT from", type=str, required=True)
 @click.option("-t", "--address", help="Address to send the SIT", type=str, required=True)
 def send_from_cmd(
@@ -152,7 +152,7 @@ def send_from_cmd(
     wallet_rpc_port: Optional[int],
     fingerprint: int,
     id: int,
-    numCoins: int,
+    numcoins: int,
     source: str,
     address: str,
 ) -> None:
@@ -160,7 +160,7 @@ def send_from_cmd(
 
     from .wallet_funcs import execute_with_wallet, send_from
 
-    extra_params = {"id": id, "numCoins": numCoins, "source": source, "address": address, "rpc_port": rpc_port}
+    extra_params = {"id": id, "numcoins": numcoins, "source": source, "address": address, "rpc_port": rpc_port}
     asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, send_from))
 
 

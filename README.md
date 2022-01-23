@@ -59,9 +59,11 @@ Please visit our wiki for more information:
 3. Withdraw coins from the staking address:
 
    ```
-   $ sit wallet send_from -s sit1x6jjvepyvjv7395nmtywvx9mknshgy78dsmuu38m0e9grxr080nsltjugr -t $RECEIVER -a $AMOUNT
+   $ sit wallet send_from -s sit1x6jjvepyvjv7395nmtywvx9mknshgy78dsmuu38m0e9grxr080nsltjugr -t $RECEIVER -n $NUMCOINS
    ```
 
-   Do a transaction to transfer the coins from the staking address to any receive address.
+   Do a transaction to transfer a number of coins from the staking address to any receive address.
+
+   The value of each key will depend upon how the coins were deposited to the staking address
 
    Make sure to choose the wallet that contains the plot farmer key.
