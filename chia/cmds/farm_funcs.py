@@ -60,7 +60,6 @@ async def get_blockchain_state(rpc_port: Optional[int]) -> Optional[Dict[str, An
     await client.await_closed()
     return blockchain_state
 
-
 async def get_ph_balance(rpc_port: Optional[int], puzzle_hash: bytes32) -> Optional[uint64]:
     coins = None
     try:
@@ -248,6 +247,7 @@ async def summary(
         total_plots = 0
         staking_addresses = defaultdict(int)
 
+    total_staking_balance = 0
     if all_harvesters is not None:
         harvesters_local: dict = {}
         harvesters_remote: dict = {}
@@ -287,6 +287,8 @@ async def summary(
         for k, v in sorted(PlotStats.staking_addresses.items(), key=(lambda tup: tup[1]), reverse=True):
             balance = await get_ph_balance(rpc_port, k)
             balance /= Decimal(10 ** 12)
+
+            total_staking_balance += balance
             # query balance
             ph = encode_puzzle_hash(k, address_prefix)
             print(f"  {ph} (balance: {balance}, plots: {v})")
@@ -300,9 +302,13 @@ async def summary(
     else:
         print("Estimated network space: Unknown")
 
+    sf = await get_est_staking_factor(PlotStats.total_plot_size, total_staking_balance)
+    print(f"Estimated staking factor: {sf}")
+
     minutes = -1
     if blockchain_state is not None and all_harvesters is not None:
-        proportion = PlotStats.total_plot_size / blockchain_state["space"] if blockchain_state["space"] else -1
+        est_plot_size = PlotStats.total_plot_size / float(sf)
+        proportion = est_plot_size / blockchain_state["space"] if blockchain_state["space"] else -1
         minutes = int((await get_average_block_time(rpc_port) / 60) / proportion) if proportion else -1
 
     if all_harvesters is not None and PlotStats.total_plots == 0:
@@ -319,3 +325,17 @@ async def summary(
             print("For details on farmed rewards and fees you should run 'sit wallet show'")
     else:
         print("Note: log into your key using 'sit wallet show' to see rewards for each key")
+
+
+async def get_est_staking_factor(total_plot_size, total_staking_balance) -> Decimal:
+
+    sf = 0
+    if total_plot_size == 0:
+        return Decimal(1)
+
+    if total_staking_balance >= total_plot_size:
+        sf = Decimal("0.5") + Decimal(1) / (Decimal(total_staking_balance) / total_plot_size + 1)
+    else:
+        sf = Decimal("0.05") + Decimal(1) / (Decimal(total_staking_balance) / total_plot_size + Decimal("0.05"))
+
+    return round(sf, 2)

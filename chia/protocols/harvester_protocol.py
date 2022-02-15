@@ -84,6 +84,7 @@ class Plot(Streamable):
     file_size: uint64
     time_modified: uint64
     farmer_public_key: G1Element
+    farmer_puzzle_address: Optional[str]
 
 
 @dataclass(frozen=True)

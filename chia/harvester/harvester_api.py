@@ -314,6 +314,7 @@ class HarvesterAPI:
                     plot["file_size"],
                     plot["time_modified"],
                     plot["farmer_public_key"],
+                    plot["farmer_puzzle_address"]
                 )
             )
 
