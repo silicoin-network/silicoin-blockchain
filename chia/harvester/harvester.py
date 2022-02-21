@@ -114,7 +114,7 @@ class Harvester:
                         "file_size": plot_info.file_size,
                         "time_modified": plot_info.time_modified,
                         "farmer_public_key": plot_info.farmer_public_key,
-                        "farmer_puzzle_hash": encode_puzzle_hash(create_puzzlehash_for_pk(plot_info.farmer_public_key), address_prefix),
+                        "farmer_puzzle_address": encode_puzzle_hash(create_puzzlehash_for_pk(plot_info.farmer_public_key), address_prefix),
                     }
                 )
             self.log.debug(

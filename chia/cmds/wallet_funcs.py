@@ -128,7 +128,7 @@ def wallet_coin_unit(typ: WalletType, address_prefix: str) -> Tuple[str, int]:
 
 
 def print_balance(amount: int, scale: int, address_prefix: str) -> str:
-    ret = f"{amount/scale} {address_prefix} "
+    ret = f"{amount / scale} {address_prefix} "
     if scale > 1:
         ret += f"({amount} mojo)"
     return ret
@@ -159,9 +159,16 @@ async def send_from(args: dict, wallet_client: WalletRpcClient, fingerprint: int
     wallet_id = args["id"]
     address = decode_puzzle_hash(args["address"])
     source = decode_puzzle_hash(args["source"])
+    request_amount = Decimal(args["amount"])
     rpc_port = args["rpc_port"]
 
+    if request_amount <= 0:
+        print(f"The withdraw amount should be larger than 0")
+        return None
+
+    withdraw_amount = uint64(int(request_amount * units["chia"]))
     coin_records = None
+
     try:
         config = load_config(DEFAULT_ROOT_PATH, "config.yaml")
         self_hostname = config["self_hostname"]
@@ -178,15 +185,45 @@ async def send_from(args: dict, wallet_client: WalletRpcClient, fingerprint: int
     client.close()
     await client.await_closed()
 
+    # get all unspend coins and sort
     coins = [cr.coin for cr in coin_records]
-    amount = sum(coin.amount for coin in coins)
+    sorted_coins = sorted(coins, key=lambda x: x.amount, reverse=True)
+
+    amount = 0
+    spend_coins = list()
+
+    for coin in sorted_coins:
+        amount += coin.amount
+        spend_coins.append(coin)
+
+        if amount >= withdraw_amount:
+            break
+
+    change = amount - withdraw_amount
+
+    # check whether staking address has enough balance
+    if change < 0:
+        print(f"Not enough balance in staking address")
+        return None
+
     additions = [
         {
             "puzzle_hash": address,
-            "amount": amount,
+            "amount": withdraw_amount,
         }
     ]
-    res = await wallet_client.send_transaction_multi(wallet_id, additions, coins)
+
+    if change > 0:
+        additions.append(
+            {
+                "puzzle_hash": source,
+                "amount": change,
+            }
+        )
+
+    print(f"Additions {additions}")
+
+    res = await wallet_client.send_transaction_multi(wallet_id, additions, spend_coins)
     tx_id = res.name
     start = time.time()
     while time.time() - start < 10:
@@ -216,7 +253,7 @@ async def get_wallet(wallet_client: WalletRpcClient, fingerprint: int = None) ->
     else:
         print("Choose wallet key:")
         for i, fp in enumerate(fingerprints):
-            print(f"{i+1}) {fp}")
+            print(f"{i + 1}) {fp}")
         val = None
         while val is None:
             val = input("Enter a number to pick or q to quit: ")
@@ -274,7 +311,7 @@ async def get_wallet(wallet_client: WalletRpcClient, fingerprint: int = None) ->
 
 
 async def execute_with_wallet(
-    wallet_rpc_port: Optional[int], fingerprint: int, extra_params: Dict, function: Callable
+        wallet_rpc_port: Optional[int], fingerprint: int, extra_params: Dict, function: Callable
 ) -> None:
     try:
         config = load_config(DEFAULT_ROOT_PATH, "config.yaml")
